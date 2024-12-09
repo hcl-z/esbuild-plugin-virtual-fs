@@ -1,3 +1,4 @@
+import { virtualFSPlugin } from 'esbuild-virtual-fs-plugin'
 import * as esbuild from 'esbuild-wasm'
 import { useEffect, useState } from 'react'
 import CompileButton from './components/CompileButton'
@@ -38,7 +39,7 @@ export default function EsbuildCompiler() {
   }, [])
 
   const handleAddFile = (filename: string) => {
-    setFiles(prevFiles => {
+    setFiles((prevFiles) => {
       const isFirstFile = Object.keys(prevFiles).length === 0
       return {
         ...prevFiles,
@@ -54,7 +55,7 @@ export default function EsbuildCompiler() {
       ...prevFiles,
       [filename]: {
         content,
-        isEntry: prevFiles[filename].isEntry,
+        isEntry: prevFiles[filename]?.isEntry,
       },
     }))
   }
@@ -69,7 +70,7 @@ export default function EsbuildCompiler() {
         const nextEntryFile = Object.keys(newFiles)[0]
         newFiles[nextEntryFile] = {
           ...newFiles[nextEntryFile],
-          isEntry: true
+          isEntry: true,
         }
       }
 
@@ -99,82 +100,22 @@ export default function EsbuildCompiler() {
         splitting: true,
         metafile: true,
         plugins: [
-          {
-            name: 'virtual-files',
-            setup(build) {
-              build.onResolve({ filter: /.*/ }, args => {
-                if (files[args.path] || args.path === entryFile) {
-                  return {
-                    path: args.path,
-                    namespace: 'virtual-files'
-                  }
-                }
-
-                if (args.path.startsWith('./') || args.path.startsWith('../')) {
-                  const normalizedPath = new URL(
-                    args.path,
-                    'file:///' + args.importer
-                  ).pathname.slice(1)
-
-                  if (files[normalizedPath]) {
-                    return {
-                      path: normalizedPath,
-                      namespace: 'virtual-files'
-                    }
-                  }
-                }
-
-                return { external: true }
-              })
-
-              build.onLoad({ filter: /.*/, namespace: 'virtual-files' }, args => {
-                const file = files[args.path]
-                if (!file) {
-                  return {
-                    errors: [{
-                      text: `File not found: ${args.path}`
-                    }]
-                  }
-                }
-
-                const loader = (() => {
-                  const ext = args.path.split('.').pop()?.toLowerCase()
-                  switch (ext) {
-                    case 'ts':
-                    case 'tsx':
-                      return 'tsx'
-                    case 'jsx':
-                      return 'jsx'
-                    case 'css':
-                      return 'css'
-                    case 'json':
-                      return 'json'
-                    case 'txt':
-                      return 'text'
-                    default:
-                      return 'js'
-                  }
-                })()
-
-                return {
-                  contents: file.content,
-                  loader
-                }
-              })
-            },
-          },
+          virtualFSPlugin({
+            files,
+            cdnUrl: 'https://cdn.jsdelivr.net/npm/',
+          }),
         ],
       })
 
       const outputs = result.outputFiles.map(file => ({
         filename: file.path.split('/').pop() || 'output.js',
-        content: file.text
+        content: file.text,
       }))
 
       if (result.metafile) {
         outputs.push({
           filename: 'meta.json',
-          content: JSON.stringify(result.metafile, null, 2)
+          content: JSON.stringify(result.metafile, null, 2),
         })
       }
 
@@ -184,7 +125,7 @@ export default function EsbuildCompiler() {
       setHasError(true)
       setCompiledOutputs([{
         filename: 'error.txt',
-        content: `${(error as Error).message}`
+        content: `${(error as Error).message}`,
       }])
     }
     setIsCompiling(false)
@@ -200,23 +141,23 @@ export default function EsbuildCompiler() {
             onAddFile={handleAddFile}
             onDeleteFile={handleDeleteFile}
             onSelectFile={setActiveFile}
-            activeFile={activeFile||''}
+            activeFile={activeFile || ''}
           />
           <FileEditor
-            filename={activeFile||''}
+            filename={activeFile || ''}
             content={activeFile ? files[activeFile].content : ''}
-            onChange={content => handleFileChange(activeFile||'', content)}
+            onChange={content => handleFileChange(activeFile || '', content)}
           />
         </div>
-         <div className="bg-gray-50 p-6 rounded-lg shadow-md">
-          <CompileButton 
-            onClick={handleCompile} 
-            isCompiling={isCompiling} 
+        <div className="bg-gray-50 p-6 rounded-lg shadow-md">
+          <CompileButton
+            onClick={handleCompile}
+            isCompiling={isCompiling}
             isDisabled={!isEsbuildReady}
             hasError={hasError}
           />
-          <OutputDisplay 
-            outputs={compiledOutputs} 
+          <OutputDisplay
+            outputs={compiledOutputs}
             hasError={hasError}
           />
         </div>

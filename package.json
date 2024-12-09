@@ -1,5 +1,6 @@
 {
   "name": "esbuild-plugin-demo",
+  "type": "module",
   "version": "1.0.0",
   "description": "esbuild plugin demo",
   "author": "",
@@ -8,14 +9,14 @@
     "esbuild",
     "plugin"
   ],
-  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
     "dev": "tsc -w",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint --fix ."
+    "lint": "eslint --fix .",
+    "dev:playground": "pnpm --filter esbuild-playground dev"
   },
   "dependencies": {
     "esbuild": "^0.24.0"

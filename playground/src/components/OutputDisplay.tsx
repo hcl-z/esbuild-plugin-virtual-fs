@@ -29,7 +29,7 @@ export default function OutputDisplay({ outputs, hasError }: OutputDisplayProps)
             <AlertCircle className="h-5 w-5 mr-2" />
             <h3 className="font-medium">编译错误</h3>
           </div>
-          <pre className="text-sm text-red-600 whitespace-pre-wrap">
+          <pre className="text-sm text-red-600 whitespace-pre-wrap break-words">
             {outputs[0]?.content || '未知错误'}
           </pre>
         </div>
@@ -43,7 +43,7 @@ export default function OutputDisplay({ outputs, hasError }: OutputDisplayProps)
       <ScrollArea className="h-[calc(100vh-240px)]">
         <div className="space-y-2">
           {outputs.map(({ filename, content }) => (
-            <div 
+            <div
               key={filename}
               className="bg-white rounded-lg border p-3 shadow-sm"
             >
@@ -56,17 +56,19 @@ export default function OutputDisplay({ outputs, hasError }: OutputDisplayProps)
                     onClick={() => handleCopy(content, filename)}
                     className="h-8 px-2"
                   >
-                    {copiedFile === filename ? (
-                      <Check className="h-4 w-4 text-green-600" />
-                    ) : (
-                      <Copy className="h-4 w-4" />
-                    )}
+                    {copiedFile === filename
+                      ? (
+                          <Check className="h-4 w-4 text-green-600" />
+                        )
+                      : (
+                          <Copy className="h-4 w-4" />
+                        )}
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setExpandedFile(
-                      expandedFile === filename ? null : filename
+                      expandedFile === filename ? null : filename,
                     )}
                     className="h-8 px-2"
                   >
