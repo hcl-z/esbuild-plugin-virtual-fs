@@ -1,11 +1,11 @@
-import { virtualFSPlugin } from 'esbuild-virtual-fs-plugin'
+import { lessPlugin, virtualFSPlugin } from '../../plugins/esbuild-virtual-fs-plugin/src'
 import * as esbuild from 'esbuild-wasm'
 import { useEffect, useState } from 'react'
 import CompileButton from './components/CompileButton'
 import FileEditor from './components/FileEditor'
 import FileList from './components/FileList'
 import OutputDisplay from './components/OutputDisplay'
-
+import { lessLoader } from 'esbuild-plugin-less';
 interface CompiledOutput {
   filename: string
   content: string
@@ -103,7 +103,10 @@ export default function EsbuildCompiler() {
           virtualFSPlugin({
             files,
             cdnUrl: 'https://cdn.jsdelivr.net/npm/',
+            enableSass: true,
+            enableLess: true,
           }),
+          lessPlugin()
         ],
       })
 

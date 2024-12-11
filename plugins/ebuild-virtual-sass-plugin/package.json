@@ -1,0 +1,19 @@
+{
+    "name": "esbuild-virtual-sass-plugin",
+    "type": "module",
+    "version": "0.0.1",
+    "private": true,
+    "main": "src/index.ts",
+    "scripts": {
+      "build": "tsc"
+    },
+    "dependencies": {
+      "sass": "^1.82.0"
+    },
+    "devDependencies": {
+      "@types/less": "^3.0.7",
+      "esbuild": "^0.24.0",
+      "sass": "^1.82.0"
+    }
+  }
+  
